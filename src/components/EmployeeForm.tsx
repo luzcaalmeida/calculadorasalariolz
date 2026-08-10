@@ -1,6 +1,6 @@
 import React from 'react';
 import { WorkerData, TaxRegime, MaritalStatus } from '../types';
-import { Calculator, Settings2, User, Coins, Briefcase } from 'lucide-react';
+import { Calculator, Settings2, User, Coins, Briefcase, Save } from 'lucide-react';
 
 interface EmployeeFormProps {
   data: WorkerData;
@@ -59,7 +59,12 @@ export default function EmployeeForm({ data, onChange, onCalculate, mode = 'calc
               />
             </div>
 
-            {mode === 'calculator' && (
+            {mode === 'calendar' ? (
+              <div className="bg-cyan-950/30 border border-cyan-900/60 p-3 flex flex-col justify-center">
+                <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest block">Horas do Calendário</span>
+                <span className="text-2xl font-black text-cyan-300">{data.hoursWorked || 0}h</span>
+              </div>
+            ) : (
               <div>
                 <label className="block text-xs font-medium text-neutral-400 mb-1 uppercase tracking-wider">Horas Trabalhadas</label>
                 <input 
@@ -67,7 +72,7 @@ export default function EmployeeForm({ data, onChange, onCalculate, mode = 'calc
                   name="hoursWorked" 
                   value={data.hoursWorked || ''} 
                   onChange={handleChange} 
-                  className="w-full px-3 py-2 bg-cyan-950/20 border border-cyan-900/50 rounded-none focus:outline-none focus:border-cyan-500 text-cyan-400 transition-colors" 
+                  className="w-full px-3 py-2 text-lg font-bold bg-cyan-950/30 border border-cyan-900/60 rounded-none focus:outline-none focus:border-cyan-500 text-cyan-300 transition-colors" 
                 />
               </div>
             )}
@@ -83,7 +88,12 @@ export default function EmployeeForm({ data, onChange, onCalculate, mode = 'calc
               />
             </div>
 
-            {mode === 'calculator' && (
+            {mode === 'calendar' ? (
+              <div className="bg-indigo-950/30 border border-indigo-900/60 p-3 flex flex-col justify-center">
+                <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest block">Diárias do Calendário</span>
+                <span className="text-2xl font-black text-indigo-300">{data.daysWorked || 0} {data.daysWorked === 1 ? 'dia' : 'dias'}</span>
+              </div>
+            ) : (
               <div>
                 <label className="block text-xs font-medium text-neutral-400 mb-1 uppercase tracking-wider">Dias com Diária</label>
                 <input 
@@ -91,7 +101,7 @@ export default function EmployeeForm({ data, onChange, onCalculate, mode = 'calc
                   name="daysWorked" 
                   value={data.daysWorked || ''} 
                   onChange={handleChange} 
-                  className="w-full px-3 py-2 bg-indigo-950/20 border border-indigo-900/50 rounded-none focus:outline-none focus:border-indigo-500 text-indigo-400 transition-colors" 
+                  className="w-full px-3 py-2 text-lg font-bold bg-indigo-950/30 border border-indigo-900/60 rounded-none focus:outline-none focus:border-indigo-500 text-indigo-300 transition-colors" 
                 />
               </div>
             )}
@@ -139,8 +149,8 @@ export default function EmployeeForm({ data, onChange, onCalculate, mode = 'calc
           onClick={onCalculate}
           className="w-full md:w-auto flex items-center justify-center gap-2 px-8 py-3 bg-cyan-500 text-black font-bold uppercase tracking-wider rounded-none hover:bg-cyan-400 transition-colors"
         >
-          <Calculator className="w-5 h-5" />
-          Processar Salário
+          <Save className="w-5 h-5" />
+          Salvar Dados
         </button>
       </div>
     </div>

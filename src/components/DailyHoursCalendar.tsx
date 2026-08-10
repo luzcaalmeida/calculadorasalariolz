@@ -14,7 +14,7 @@ import {
   isWeekend
 } from 'date-fns';
 import { pt } from 'date-fns/locale';
-import { ChevronLeft, ChevronRight, Check, X, Calendar as CalendarIcon } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check, X, Calendar as CalendarIcon, Clock, Briefcase } from 'lucide-react';
 import { DailyLogEntry } from '../types';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -264,6 +264,45 @@ export default function DailyHoursCalendar({ userId, onApplyTotals }: DailyHours
         </div>
       </div>
       
+      {/* Large Total Hours and Allowance Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-neutral-950 border-b border-neutral-800">
+        <div className="bg-neutral-900/90 border border-cyan-900/60 p-4 flex items-center justify-between">
+          <div>
+            <span className="text-xs font-bold text-neutral-400 uppercase tracking-widest block mb-1">
+              Total de Horas no Mês
+            </span>
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl sm:text-4xl font-black text-cyan-400 tracking-tight">
+                {totalMonthlyHours}
+              </span>
+              <span className="text-base font-bold text-cyan-500/80 uppercase tracking-wider">horas</span>
+            </div>
+          </div>
+          <div className="p-3 bg-cyan-950/80 rounded-none border border-cyan-800/60 text-cyan-400">
+            <Clock className="w-8 h-8" />
+          </div>
+        </div>
+
+        <div className="bg-neutral-900/90 border border-indigo-900/60 p-4 flex items-center justify-between">
+          <div>
+            <span className="text-xs font-bold text-neutral-400 uppercase tracking-widest block mb-1">
+              Total de Diárias no Mês
+            </span>
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl sm:text-4xl font-black text-indigo-400 tracking-tight">
+                {totalMonthlyAllowanceDays}
+              </span>
+              <span className="text-base font-bold text-indigo-500/80 uppercase tracking-wider">
+                {totalMonthlyAllowanceDays === 1 ? 'diária' : 'diárias'}
+              </span>
+            </div>
+          </div>
+          <div className="p-3 bg-indigo-950/80 rounded-none border border-indigo-800/60 text-indigo-400">
+            <Briefcase className="w-8 h-8" />
+          </div>
+        </div>
+      </div>
+
       <div className="p-4 bg-neutral-950 border-b border-neutral-800 flex flex-wrap gap-2 justify-between items-center">
         <div className="flex gap-2">
           <button onClick={fillWeekdays} className="text-xs tracking-wide px-3 py-1.5 bg-neutral-900 border border-neutral-700 rounded-none hover:border-cyan-500 text-neutral-300 font-medium transition-colors">
@@ -271,17 +310,6 @@ export default function DailyHoursCalendar({ userId, onApplyTotals }: DailyHours
           </button>
           <button onClick={clearMonth} className="text-xs tracking-wide px-3 py-1.5 bg-neutral-900 border border-neutral-700 rounded-none hover:border-red-500 hover:text-red-400 text-neutral-300 font-medium transition-colors">
             LIMPAR MÊS
-          </button>
-        </div>
-        <div className="flex items-center gap-4 text-xs tracking-wide font-medium text-neutral-400 bg-neutral-900 px-3 py-1.5 rounded-none border border-neutral-800">
-          <div>TOTAIS DO MÊS:</div>
-          <div className="text-cyan-400">{totalMonthlyHours}h Trabalhadas</div>
-          <div className="text-indigo-400">{totalMonthlyAllowanceDays} Diária</div>
-          <button 
-            onClick={() => onApplyTotals(totalMonthlyHours, totalMonthlyAllowanceDays)}
-            className="ml-2 text-[10px] bg-cyan-500/10 text-cyan-400 border border-cyan-500/50 px-2 py-1 rounded-none hover:bg-cyan-500 hover:text-black transition-colors uppercase tracking-wider"
-          >
-            Aplicar ao Formulário
           </button>
         </div>
       </div>

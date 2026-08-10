@@ -5,7 +5,11 @@ import EmployeeForm from './EmployeeForm';
 import DailyHoursCalendar from './DailyHoursCalendar';
 import PayrollResult from './PayrollResult';
 import ReportTab from './ReportTab';
-import { Calculator, LogOut, Calendar, FileSpreadsheet, SlidersHorizontal } from 'lucide-react';
+import TaxTables from './TaxTables';
+import { Calculator, LogOut, Calendar, FileSpreadsheet, SlidersHorizontal, Landmark, Check } from 'lucide-react';
+import { db } from '../firebase';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { handleFirestoreError, OperationType } from '../utils/firebaseError';
 
 interface DashboardProps {
   user: User;
@@ -29,7 +33,7 @@ const defaultWorkerData: WorkerData = {
 };
 
 export default function Dashboard({ user, onLogout }: DashboardProps) {
-  const [activeTab, setActiveTab] = useState<'calendar' | 'calculator' | 'report'>('calendar');
+  const [activeTab, setActiveTab] = useState<'calendar' | 'calculator' | 'report' | 'taxes'>('calendar');
   
   // Data for Calendar View
   const [calendarWorkerData, setCalendarWorkerData] = useState<WorkerData>({ ...defaultWorkerData });
@@ -43,21 +47,37 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
   });
   const [manualResult, setManualResult] = useState<PayrollCalculation | null>(null);
 
+  const [showSaveSuccess, setShowSaveSuccess] = useState(false);
+
+  // Load saved settings from Firestore
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        const userDoc = await getDoc(doc(db, 'users', user.id));
+        if (userDoc.exists()) {
+          const data = userDoc.data();
+          if (data.workerSettings) {
+            setCalendarWorkerData(prev => ({ ...prev, ...data.workerSettings, hoursWorked: prev.hoursWorked, daysWorked: prev.daysWorked }));
+            setManualWorkerData(prev => ({ ...prev, ...data.workerSettings }));
+          }
+        }
+      } catch (error) {
+        console.error('Error loading settings:', error);
+      }
+    };
+    loadSettings();
+  }, [user.id]);
+
   // Auto-calculate for Calendar View whenever calendar data changes
   useEffect(() => {
     const res = calculatePayroll(calendarWorkerData);
     setCalendarResult(res);
   }, [calendarWorkerData]);
 
-  // Handle manual calculation button or changes for standalone calculator
-  const handleCalculateManual = () => {
-    const res = calculatePayroll(manualWorkerData);
-    setManualResult(res);
-  };
-
   // Auto-calculate initial manual result
   useEffect(() => {
-    handleCalculateManual();
+    const res = calculatePayroll(manualWorkerData);
+    setManualResult(res);
   }, [manualWorkerData]);
 
   const handleApplyCalendarTotals = (totalHours: number, totalAllowanceDays: number) => {
@@ -68,8 +88,38 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
     }));
   };
 
+  const handleSaveWorkerData = async (data: WorkerData, isManual: boolean) => {
+    try {
+      // Save to Firebase
+      await setDoc(doc(db, 'users', user.id), { workerSettings: data }, { merge: true });
+      
+      // Update results
+      if (isManual) {
+        setManualResult(calculatePayroll(data));
+      } else {
+        setCalendarResult(calculatePayroll(data));
+      }
+
+      // Show temporary success feedback
+      setShowSaveSuccess(true);
+      setTimeout(() => setShowSaveSuccess(false), 3000);
+    } catch (error) {
+      handleFirestoreError(error, OperationType.UPDATE, 'users');
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-neutral-900 text-neutral-100 font-sans selection:bg-cyan-500/30">
+    <div className="min-h-screen bg-neutral-900 text-neutral-100 font-sans selection:bg-cyan-500/30 relative">
+      {/* Toast Notification */}
+      {showSaveSuccess && (
+        <div className="fixed bottom-4 right-4 z-50 animate-in slide-in-from-bottom-5 fade-in duration-300">
+          <div className="bg-emerald-950 border border-emerald-900 text-emerald-400 px-6 py-3 shadow-lg shadow-emerald-900/20 flex items-center gap-3">
+            <Check className="w-5 h-5" />
+            <span className="text-sm font-bold tracking-wider uppercase">Dados Salvos com Sucesso</span>
+          </div>
+        </div>
+      )}
+
       <header className="bg-neutral-950 border-b border-neutral-800 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -132,6 +182,17 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
             <FileSpreadsheet className="w-4 h-4" />
             Planilha & Relatório
           </button>
+          <button
+            onClick={() => setActiveTab('taxes')}
+            className={`py-3 text-xs tracking-widest uppercase font-semibold flex items-center gap-2 border-b-2 transition-colors ${
+              activeTab === 'taxes' 
+                ? 'border-cyan-400 text-cyan-400' 
+                : 'border-transparent text-neutral-500 hover:text-neutral-300'
+            }`}
+          >
+            <Landmark className="w-4 h-4" />
+            Tabelas de Impostos
+          </button>
         </div>
       </header>
 
@@ -147,7 +208,7 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
               <EmployeeForm 
                 data={calendarWorkerData} 
                 onChange={setCalendarWorkerData} 
-                onCalculate={() => setCalendarResult(calculatePayroll(calendarWorkerData))} 
+                onCalculate={() => handleSaveWorkerData(calendarWorkerData, false)} 
                 mode="calendar"
               />
             </div>
@@ -166,7 +227,7 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
               <EmployeeForm 
                 data={manualWorkerData} 
                 onChange={setManualWorkerData} 
-                onCalculate={handleCalculateManual} 
+                onCalculate={() => handleSaveWorkerData(manualWorkerData, true)} 
                 mode="calculator"
               />
             </div>
@@ -185,6 +246,10 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
             result={calendarResult || manualResult} 
             workerData={calendarWorkerData} 
           />
+        )}
+
+        {activeTab === 'taxes' && (
+          <TaxTables result={calendarResult || manualResult} />
         )}
       </main>
     </div>

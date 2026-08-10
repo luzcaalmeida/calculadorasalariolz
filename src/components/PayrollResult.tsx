@@ -59,14 +59,6 @@ export default function PayrollResult({ result }: PayrollResultProps) {
             <span className="font-medium text-neutral-200">{formatCurrency(result.basePay)}</span>
           </div>
           <div className="flex justify-between items-center py-2 border-b border-neutral-800">
-            <span className="text-neutral-400 text-sm tracking-wide flex items-center gap-2">
-              Subsídios (Férias + Natal)
-            </span>
-            <span className="font-medium text-neutral-200">
-              {formatCurrency(result.holidaySubsidyValue + result.christmasSubsidyValue)}
-            </span>
-          </div>
-          <div className="flex justify-between items-center py-2 border-b border-neutral-800">
             <span className="text-neutral-400 text-sm tracking-wide">Ajudas de Custo Totais</span>
             <span className="font-medium text-neutral-200">{formatCurrency(result.totalAllowances)}</span>
           </div>
