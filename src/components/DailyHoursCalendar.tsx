@@ -180,7 +180,7 @@ export default function DailyHoursCalendar({ userId, onApplyTotals }: DailyHours
   });
 
   const totalMonthlyHours = currentMonthLogs.reduce((acc, log) => acc + log.normalHours, 0);
-  const totalMonthlyAllowanceDays = currentMonthLogs.filter(log => log.hasDailyAllowance && log.normalHours > 0).length;
+  const totalMonthlyAllowanceDays = currentMonthLogs.filter(log => log.hasDailyAllowance).length;
 
   useEffect(() => {
     onApplyTotals(totalMonthlyHours, totalMonthlyAllowanceDays);
