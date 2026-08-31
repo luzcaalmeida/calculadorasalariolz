@@ -109,18 +109,23 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-900 text-neutral-100 font-sans selection:bg-cyan-500/30 relative">
+    <div className="min-h-screen bg-neutral-900 text-neutral-100 font-sans selection:bg-cyan-500/30 flex flex-col relative">
       {/* Toast Notification */}
       {showSaveSuccess && (
         <div className="fixed bottom-4 right-4 z-50 animate-in slide-in-from-bottom-5 fade-in duration-300">
-          <div className="bg-emerald-950 border border-emerald-900 text-emerald-400 px-6 py-3 shadow-lg shadow-emerald-900/20 flex items-center gap-3">
-            <Check className="w-5 h-5" />
-            <span className="text-sm font-bold tracking-wider uppercase">Dados Salvos com Sucesso</span>
+          <div className="bg-emerald-950 border border-emerald-900 text-emerald-400 px-6 py-4 shadow-lg shadow-emerald-900/20 flex flex-col gap-1 max-w-sm">
+            <div className="flex items-center gap-3">
+              <Check className="w-5 h-5" />
+              <span className="text-sm font-bold tracking-wider uppercase">Dados Salvos com Sucesso</span>
+            </div>
+            <p className="text-xs text-emerald-500 mt-2">
+              Se os valores não estiverem corretos, por favor, entre em contato com Lucas Almeida para suporte.
+            </p>
           </div>
         </div>
       )}
 
-      <header className="bg-neutral-950 border-b border-neutral-800 sticky top-0 z-10">
+      <header className="bg-neutral-950 border-b border-neutral-800 sticky top-0 z-10 shrink-0">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-cyan-950 border border-cyan-800 rounded-none flex items-center justify-center">
@@ -196,7 +201,13 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1">
+        <div className="mb-8 p-6 bg-neutral-900 border border-neutral-800">
+          <p className="text-neutral-300">
+            Bem-vindo à <strong>Calculadora de Salários</strong>. Esta aplicação, desenvolvida por <strong>Lucas Almeida</strong>, foi criada para ajudá-lo a simular e organizar os seus rendimentos de trabalho em Portugal, oferecendo ferramentas para registo de horas e cálculo de impostos de forma transparente.
+          </p>
+        </div>
+
         {activeTab === 'calendar' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             <div className="lg:col-span-8 space-y-8">
@@ -252,6 +263,14 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
           <TaxTables result={calendarResult || manualResult} />
         )}
       </main>
+
+      <footer className="border-t border-neutral-800 bg-neutral-950 py-6 mt-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <p className="text-xs text-neutral-500 uppercase tracking-widest">
+            © {new Date().getFullYear()} Todos os direitos reservados. Desenvolvido por <strong className="text-neutral-300">Lucas Almeida</strong>.
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }

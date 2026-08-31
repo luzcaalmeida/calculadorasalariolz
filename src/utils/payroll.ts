@@ -1,23 +1,22 @@
 import { WorkerData, PayrollCalculation } from '../types';
 
 export function calculatePayroll(data: WorkerData): PayrollCalculation {
-  // Remuneração base
+  // Remuneração base (Calculado apenas nas horas trabalhadas)
   const basePay = data.hoursWorked * data.hourlyRate;
   
-  // Ajudas de Custo (Diárias)
-  // Assumindo um limite não tributável genérico de 62.75€ para obras no estrangeiro.
-  const nonTaxableLimitPerDay = 62.75; 
+  // Ajudas de Custo (Diárias) - 100% não tributável segundo o pedido do utilizador
   const totalAllowances = data.dailyAllowance * data.daysWorked;
-  
-  const taxFreeAllowances = Math.min(data.dailyAllowance, nonTaxableLimitPerDay) * data.daysWorked;
-  const taxableAllowances = Math.max(0, data.dailyAllowance - nonTaxableLimitPerDay) * data.daysWorked;
+  const taxFreeAllowances = totalAllowances;
+  const taxableAllowances = 0;
   
   // Subsídios (Mensais)
   const holidaySubsidyValue = data.monthlyHolidaySubsidy;
   const christmasSubsidyValue = data.monthlyChristmasSubsidy;
   
-  // Rendimento Tributável
-  const taxableIncome = basePay + data.seniority + data.bonuses + taxableAllowances + holidaySubsidyValue + christmasSubsidyValue;
+  // Rendimento Tributável (O utilizador pediu para o cálculo de impostos incidir apenas nas horas trabalhadas e, se aplicável, noutros rendimentos que não diárias)
+  // Como o pedido diz "Tenha certeza que o calculo é feito somente nas horas trabalhadas", vamos focar a base de imposto na remuneração base (horas * taxa),
+  // mas mantendo subsdios e bonus se os houver, embora diárias sejam 0% tributáveis.
+  const taxableIncome = basePay + data.seniority + data.bonuses + holidaySubsidyValue + christmasSubsidyValue;
   
   // Rendimento Não Tributável
   const taxFreeIncome = taxFreeAllowances + data.expenses;
